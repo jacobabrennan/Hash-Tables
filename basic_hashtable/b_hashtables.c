@@ -113,7 +113,13 @@ void hash_table_remove(BasicHashTable *ht, char *key)
  ****/
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
-  return NULL;
+    unsigned int hash_index = hash(key, ht->capacity);
+    Pair *pair_stored = ht->storage[hash_index];
+    if(!pair_stored)
+    {
+        return NULL;
+    }
+    return pair_stored->value;
 }
 
 /****
