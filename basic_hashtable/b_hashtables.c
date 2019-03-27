@@ -90,7 +90,7 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
     Pair *pair_old = ht->storage[hash_index];
     if(pair_old)
     {
-        printf("Overwriting hashed key %s with key %s", pair_old->key, key);
+        printf("Overwriting hashed key %s with key %s\n", pair_old->key, key);
         destroy_pair(pair_old);
     }
     ht->storage[hash_index] = pair_new;
@@ -111,7 +111,7 @@ void hash_table_remove(BasicHashTable *ht, char *key)
     }
     if(strcmp(pair_stored->key, key) != 0)
     {
-        print("Collision when removing key %s with %s", pair_stored->key, key);
+        printf("Collision when removing key %s with %s\n", pair_stored->key, key);
         return;
     }
     ht->storage[hash_index] = NULL;
