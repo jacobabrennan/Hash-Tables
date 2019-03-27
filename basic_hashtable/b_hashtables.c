@@ -115,7 +115,13 @@ char *hash_table_retrieve(BasicHashTable *ht, char *key)
  ****/
 void destroy_hash_table(BasicHashTable *ht)
 {
-
+    for(int index=0; index < ht->capacity; index++)
+    {
+        Pair *indexed_pair = ht->storage[index];
+        destroy_pair(indexed_pair);
+    }
+    free(ht->storage);
+    free(ht);
 }
 
 
