@@ -103,7 +103,19 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
  ****/
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
-
+    unsigned int hash_index = hash(key, ht->capacity);
+    Pair *pair_stored = ht->storage[hash_index];
+    if(!pair_stored)
+    {
+        return;
+    }
+    if(strcmp(pair_stored->key, key) != 0)
+    {
+        print("Collision when removing key %s with %s", pair_stored->key, key);
+        return;
+    }
+    ht->storage[hash_index] = NULL;
+    destroy_pair(pair_stored);
 }
 
 /****
