@@ -90,6 +90,7 @@ HashTable *create_hash_table(int capacity)
  */
 void hash_table_insert(HashTable *ht, char *key, char *value)
 {
+    hash_table_remove(ht, key);
     LinkedPair *pair_new = create_pair(key, value);
     unsigned int hash_index = hash(key, ht->capacity);
     LinkedPair *pair_old = ht->storage[hash_index];
@@ -110,7 +111,31 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
-    
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_previous = NULL;
+    LinkedPair *pair_current = ht->storage[hash_index];
+    while(pair_current)
+    {
+        if(0 == strcmp(pair_current->key, key))
+        {
+            break;
+        }
+        pair_previous = pair_current;
+        pair_current = pair_current->next;
+    }
+    if(!pair_current)
+    {
+        return;
+    }
+    if(pair_previous)
+    {
+        pair_previous->next = pair_current->next;
+    }
+    else
+    {
+        ht->storage[hash_index] = pair_current->next;
+    }
+    destroy_pair(pair_current);
 }
 
 /*
