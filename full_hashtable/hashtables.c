@@ -86,11 +86,18 @@ HashTable *create_hash_table(int capacity)
   added to the corresponding LinkedPair list.
 
   Inserting values to the same index with existing keys can overwrite
-  the value in th existing LinkedPair list.
+  the value in the existing LinkedPair list.
  */
 void hash_table_insert(HashTable *ht, char *key, char *value)
 {
-
+    LinkedPair *pair_new = create_pair(key, value);
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_old = ht->storage[hash_index];
+    ht->storage[hash_index] = pair_new;
+    if(pair_old)
+    {
+        pair_new->next = pair_old;
+    }
 }
 
 /*
@@ -103,7 +110,7 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
-
+    
 }
 
 /*
