@@ -148,7 +148,17 @@ void hash_table_remove(HashTable *ht, char *key)
  */
 char *hash_table_retrieve(HashTable *ht, char *key)
 {
-  return NULL;
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_current = ht->storage[hash_index];
+    while(pair_current)
+    {
+        if(0 == strcmp(pair_current->key, key))
+        {
+            break;
+        }
+        pair_current = pair_current->next;
+    }
+    return pair_current;
 }
 
 /*
