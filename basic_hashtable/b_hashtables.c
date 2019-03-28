@@ -70,9 +70,10 @@ unsigned int hash(char *str, int max)
  ****/
 BasicHashTable *create_hash_table(int capacity)
 {
-  BasicHashTable *ht;
-
-  return ht;
+    BasicHashTable *ht = malloc(sizeof(BasicHashTable));
+    ht->capacity = capacity;
+    ht->storage = calloc(capacity, sizeof(Pair*));
+    return ht;
 }
 
 /****
@@ -84,7 +85,15 @@ BasicHashTable *create_hash_table(int capacity)
  ****/
 void hash_table_insert(BasicHashTable *ht, char *key, char *value)
 {
-
+    Pair *pair_new = create_pair(key, value);
+    unsigned int hash_index = hash(key, ht->capacity);
+    Pair *pair_old = ht->storage[hash_index];
+    if(pair_old)
+    {
+        printf("Overwriting hashed key %s with key %s\n", pair_old->key, key);
+        destroy_pair(pair_old);
+    }
+    ht->storage[hash_index] = pair_new;
 }
 
 /****
@@ -94,7 +103,19 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
  ****/
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
-
+    unsigned int hash_index = hash(key, ht->capacity);
+    Pair *pair_stored = ht->storage[hash_index];
+    if(!pair_stored)
+    {
+        return;
+    }
+    if(strcmp(pair_stored->key, key) != 0)
+    {
+        printf("Collision when removing key %s with %s\n", pair_stored->key, key);
+        return;
+    }
+    ht->storage[hash_index] = NULL;
+    destroy_pair(pair_stored);
 }
 
 /****
@@ -104,7 +125,13 @@ void hash_table_remove(BasicHashTable *ht, char *key)
  ****/
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
-  return NULL;
+    unsigned int hash_index = hash(key, ht->capacity);
+    Pair *pair_stored = ht->storage[hash_index];
+    if(!pair_stored)
+    {
+        return NULL;
+    }
+    return pair_stored->value;
 }
 
 /****
@@ -114,7 +141,13 @@ char *hash_table_retrieve(BasicHashTable *ht, char *key)
  ****/
 void destroy_hash_table(BasicHashTable *ht)
 {
-
+    for(int index=0; index < ht->capacity; index++)
+    {
+        Pair *indexed_pair = ht->storage[index];
+        destroy_pair(indexed_pair);
+    }
+    free(ht->storage);
+    free(ht);
 }
 
 

@@ -73,23 +73,10 @@ unsigned int hash(char *str, int max)
  */
 HashTable *create_hash_table(int capacity)
 {
-  HashTable *ht;
-
-  return ht;
-}
-
-/*
-  Fill this in.
-
-  Inserting values to the same index with different keys should be
-  added to the corresponding LinkedPair list.
-
-  Inserting values to the same index with existing keys can overwrite
-  the value in th existing LinkedPair list.
- */
-void hash_table_insert(HashTable *ht, char *key, char *value)
-{
-
+    HashTable *ht = malloc(sizeof(HashTable));
+    ht->capacity = capacity;
+    ht->storage = calloc(capacity, sizeof(LinkedPair*));
+    return ht;
 }
 
 /*
@@ -102,7 +89,53 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_previous = NULL;
+    LinkedPair *pair_current = ht->storage[hash_index];
+    while(pair_current)
+    {
+        if(0 == strcmp(pair_current->key, key))
+        {
+            break;
+        }
+        pair_previous = pair_current;
+        pair_current = pair_current->next;
+    }
+    if(!pair_current)
+    {
+        return;
+    }
+    if(pair_previous)
+    {
+        pair_previous->next = pair_current->next;
+    }
+    else
+    {
+        ht->storage[hash_index] = pair_current->next;
+    }
+    destroy_pair(pair_current);
+}
 
+/*
+  Fill this in.
+
+  Inserting values to the same index with different keys should be
+  added to the corresponding LinkedPair list.
+
+  Inserting values to the same index with existing keys can overwrite
+  the value in the existing LinkedPair list.
+ */
+void hash_table_insert(HashTable *ht, char *key, char *value)
+{
+    hash_table_remove(ht, key);
+    LinkedPair *pair_new = create_pair(key, value);
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_old = ht->storage[hash_index];
+    ht->storage[hash_index] = pair_new;
+    if(pair_old)
+    {
+        pair_new->next = pair_old;
+    }
 }
 
 /*
@@ -115,7 +148,21 @@ void hash_table_remove(HashTable *ht, char *key)
  */
 char *hash_table_retrieve(HashTable *ht, char *key)
 {
-  return NULL;
+    unsigned int hash_index = hash(key, ht->capacity);
+    LinkedPair *pair_current = ht->storage[hash_index];
+    while(pair_current)
+    {
+        if(0 == strcmp(pair_current->key, key))
+        {
+            break;
+        }
+        pair_current = pair_current->next;
+    }
+    if(!pair_current)
+    {
+        return NULL;
+    }
+    return pair_current->value;
 }
 
 /*
@@ -125,7 +172,19 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
-
+    for(int index=0; index < ht->capacity; index++)
+    {
+        LinkedPair *pair_current = ht->storage[index];
+        LinkedPair *pair_next;
+        while(pair_current)
+        {
+            pair_next = pair_current->next;
+            destroy_pair(pair_current);
+            pair_current = pair_next;
+        }
+    }
+    free(ht->storage);
+    free(ht);
 }
 
 /*
@@ -138,9 +197,19 @@ void destroy_hash_table(HashTable *ht)
  */
 HashTable *hash_table_resize(HashTable *ht)
 {
-  HashTable *new_ht;
-
-  return new_ht;
+    HashTable *new_ht = create_hash_table(ht->capacity*2);
+    for(int index=0; index < ht->capacity; index++)
+    {
+        LinkedPair *pair_current = ht->storage[index];
+        LinkedPair *pair_next;
+        while(pair_current)
+        {
+            pair_next = pair_current->next;
+            hash_table_insert(new_ht, pair_current->key, pair_current->value);
+            pair_current = pair_next;
+        }
+    }
+    return new_ht;
 }
 
 
